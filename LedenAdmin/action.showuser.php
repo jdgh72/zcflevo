@@ -1,11 +1,18 @@
 <?php
 
 if (!isset($gCms)) exit;
+$db = &$gCms->GetDb();
 
 if (!empty($params['userid'])) {
+	$query = 'SELECT id, url, username, security_code1, security_code2
+	            FROM '.cms_db_prefix().'module_ledenadmin_soapproperties
+	           WHERE id = "eboekhouden"';
 	$userid = $params['userid'];
 	
-	$connection = new eboekhouden_connection("johanneszcflevo", "23bb4b6b8962c7916aeab057a17f58f5","A4806969-DA8F-484A-83F4-14076589A3F3");
+	$result = $db->Execute($query) or die('FATAL SQL ERROR: '.$db->ErrorMsg().'<br/>QUERY: '.$db->sql);
+	$row=$result->FetchRow();
+	
+	$connection = new eboekhouden_connection($row['url'], $row['username'], $row['security_code1'], $row['security_code2']);
 	$lid = $connection->getUserData($userid);
 	$connection->closeSession();
 }
