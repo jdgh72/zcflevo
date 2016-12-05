@@ -7,12 +7,12 @@ class eboekhouden_connection {
 	private $sessionID;
 	private $client;
 	
-	public function __construct($uname, $sec1, $sec2) 
+	public function __construct($url,$uname, $sec1, $sec2) 
 	{
 		$this->username = $uname;
 		$this->security_code_1 = $sec1;
 		$this->security_code_2 = $sec2;
-		$this->client = new SoapClient("http://soap.e-boekhouden.nl/soap.asmx?wsdl");
+		$this->client = new SoapClient($url);
 		$this->openSession();	
 	}
 	

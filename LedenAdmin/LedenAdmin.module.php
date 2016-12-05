@@ -4,7 +4,7 @@ require_once(__DIR__.'/eboekhouden.php');
 class LedenAdmin extends CMSModule
 {
 	function GetName() { return 'LedenAdmin';}
-	function GetVersion() {return '0.1';}
+	function GetVersion() {return '0.2';}
 	function HasAdmin() {return false; }
 	function IsPluginModule() { return true;}
 
