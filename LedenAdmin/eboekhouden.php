@@ -46,6 +46,7 @@ class eboekhouden_connection {
 		$lid['email'] = $relatie->Email;
 		$lid['geboortedatum'] = $relatie->Def1;
 		$lid['lid_sinds'] = $relatie->Def2;
+                $lid['IBAN'] = $relatie->IBAN;
 		 
 		return $lid;
 	}
