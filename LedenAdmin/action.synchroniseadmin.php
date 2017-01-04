@@ -72,12 +72,12 @@ function syncAdmin($feuId, $lid, $feusers, $cmsmailer) {
 		
 		$mailContent = "Beste " . $lid['naam']. ", \n\n";
 
-		$mailContent .= "Bij het synchroniseren van ledenadministratie zijn verschillen geconstateerd, "; 
+		$mailContent .= "Je gegevens op de ledensite zijn aangepast n.a.v. wijzigingen in de administratie, "; 
         $mailContent .= "het betreft de volgende verschillen: \n\n";
 		foreach ($verschillen as $verschil) {
 			$mailContent .= $verschil . "\n";
 		}
-		$mailContent .= "\nJe kan je gegevens controleren op de ledenpagina van zcflevo.nl.";
+		$mailContent .= "\nJe kunt je gegevens controleren op de ledenpagina van zcflevo.nl.";
 		$mailContent .= "Mochten er dingen niet kloppen geef dit dan door aan de secretaris.";
 
 		$cmsmailer->reset();
