@@ -82,7 +82,6 @@ function syncAdmin($feuId, $lid, $feusers, $cmsmailer) {
 
 		$cmsmailer->reset();
         
-        /*
 		if (filter_var($lid['email'], FILTER_VALIDATE_EMAIL)) {
 			$cmsmailer->AddAddress($lid['email'], $lid['naam']);
 		} else {
@@ -91,12 +90,10 @@ function syncAdmin($feuId, $lid, $feusers, $cmsmailer) {
 		
 		if (isset($feuEmail)) {
 			if (filter_var($feuEmail, FILTER_VALIDATE_EMAIL)) {
-				$cmsmailer->AddCC($feuEmail);
+				$cmsmailer->AddAddress($feuEmail);
 			}
-		} */
-        $cmsmailer->AddAddress("johannes.hulshof@xs4all.nl", "Johannes XS4all");
-        $cmsmailer->AddAddress("webmaster@zcflevo.nl","Webmaster ZCFlevo");
-		// $cmsmailer->AddBCC('webmaster@zcflevo.nl');
+		} 
+		$cmsmailer->AddBCC('secretaris@zcflevo.nl');
         
 		$cmsmailer->AddReplyTo('secretaris@zcflevo.nl');
 		$cmsmailer->SetSubject('Wijzigingen in administratie');
