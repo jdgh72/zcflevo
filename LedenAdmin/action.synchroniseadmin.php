@@ -14,58 +14,96 @@ foreach ($userlist as $FeuUser) {
 	$lid = $boekhoudConnection->getUserData($username);
 
 	if (!empty($lid['naam'])) {
-		syncAdmin($FeuUser['id'], $lid, $feusers); 
-	} else {
-		echo "Lid: $username; geen data in e-boekhouden<br />";
-		echo "===================================== <br />";
-        }
+		syncAdmin($FeuUser['id'], $lid, $feusers, $cmsmailer); 
+	} 
 }
 
 closeConnection($boekhoudConnection);
 
 
-function syncAdmin($feuId, $lid, $feusers) {
+function syncAdmin($feuId, $lid, $feusers, $cmsmailer) {
 	$userProp = $feusers->GetUserProperties($feuId);
 	$verschillen = array();
 	
 	if (getUserProperty($userProp, "address1") != $lid['adres']) {
 		$feuData = getUserProperty($userProp, "address1");
-		$verschillen[] = "Verschil in Adres (site / administratie); $feuData / ".$lid['adres'];
+		$feusers->setUserPropertyFull("address1",$lid['adres'],$feuId); 
+		$verschillen[] = "Verschil in Adres, wordt aangepast van $feuData naar ".$lid['adres'];
+	}
+
+	if (getUserProperty($userProp, "address2") != "") {
+		$feuData = getUserProperty($userProp, "address2");
+		$feusers->setUserPropertyFull("address2","",$feuId);
+		$verschillen[] = "Adresregel 2 komt te vervallen";
 	}
 
 	if (getUserProperty($userProp, "zipcode") != $lid['postcode']) {
 		$feuData = getUserProperty($userProp, "zipcode");
-		$verschillen[] = "Verschil in Postcode (site / administratie); $feuData / ".$lid['postcode'];
+		$feusers->setUserPropertyFull("zipcode",$lid['postcode'],$feuId);
+		$verschillen[] = "Verschil in Postcode, wordt aangepast van $feuData naar ".$lid['postcode'];
 	}
 	
 	if (getUserProperty($userProp, "residence") != $lid['woonplaats']) {
 		$feuData = getUserProperty($userProp, "residence");
-		$verschillen[] = "Verschil in Woonplaats (site / administratie); $feuData / ".$lid['woonplaats'];
+		$feusers->setUserPropertyFull("residence",$lid['woonplaats'],$feuId);
+		$verschillen[] = "Verschil in Woonplaats, wordt aangepast van $feuData naar ".$lid['woonplaats'];
 	}
 
 	if (getUserProperty($userProp, "telhome") != $lid['telefoon']) {
 		$feuData = getUserProperty($userProp, "telhome");
-		$verschillen[] = "Verschil in Telefoonnr (site / administratie); $feuData / ".$lid['telefoon'];
+		$feusers->setUserPropertyFull("telhome",$lid['telefoon'],$feuId);
+		$verschillen[] = "Verschil in Telefoonnr, wordt aangepast van $feuData naar ".$lid['telefoon'];
 	}
 
 	if (getUserProperty($userProp, "telmobile") != $lid['mobiel']) {
 		$feuData = getUserProperty($userProp, "telmobile");
-		$verschillen[] = "Verschil in Mobiel (site / administratie); $feuData / ".$lid['mobiel'];
+		$feusers->setUserPropertyFull("telmobile",$lid['mobiel'],$feuId);
+		$verschillen[] = "Verschil in Mobielnr, wordt aangepast van $feuData naar ".$lid['mobiel'];
 	}
 
 	if (getUserProperty($userProp, "email") != $lid['email']) {
 		$feuData = getUserProperty($userProp, "email");
-		$verschillen[] = "Verschil in email (site / administratie); $feuData / ".$lid['email'];
+		$feuEmail = $feuData;
+		$feusers->setUserPropertyFull("email",$lid['email'],$feuId);
+		$verschillen[] = "Verschil in email, wordt aangepast van $feuData naar ".$lid['email'];
 	}
 	
 	if (!empty($verschillen)) {
-		echo "Verschillen geconstateerd voor user" . $lid['naam']. "<br />";
-		foreach ($verschillen as $verschil)
-		{
-			echo "$verschil <br />";
+		
+		$mailContent = "Beste " . $lid['naam']. ", \n\n";
+
+		$mailContent .= "Bij het synchroniseren van ledenadministratie zijn verschillen geconstateerd, "; 
+        $mailContent .= "het betreft de volgende verschillen: \n\n";
+		foreach ($verschillen as $verschil) {
+			$mailContent .= $verschil . "\n";
 		}
-		echo "===================================== <br />";
-        }
+		$mailContent .= "\nJe kan je gegevens controleren op de ledenpagina van zcflevo.nl.";
+		$mailContent .= "Mochten er dingen niet kloppen geef dit dan door aan de secretaris.";
+
+		$cmsmailer->reset();
+        
+        /*
+		if (filter_var($lid['email'], FILTER_VALIDATE_EMAIL)) {
+			$cmsmailer->AddAddress($lid['email'], $lid['naam']);
+		} else {
+			$cmsmailer->AddAddress('webmaster@zcflevo.nl');
+		}
+		
+		if (isset($feuEmail)) {
+			if (filter_var($feuEmail, FILTER_VALIDATE_EMAIL)) {
+				$cmsmailer->AddCC($feuEmail);
+			}
+		} */
+        $cmsmailer->AddAddress("johannes.hulshof@xs4all.nl", "Johannes XS4all");
+        $cmsmailer->AddAddress("webmaster@zcflevo.nl","Webmaster ZCFlevo");
+		// $cmsmailer->AddBCC('webmaster@zcflevo.nl');
+        
+		$cmsmailer->AddReplyTo('secretaris@zcflevo.nl');
+		$cmsmailer->SetSubject('Wijzigingen in administratie');
+		$cmsmailer->SetBody($mailContent);
+		$cmsmailer->IsHTML(false);
+		$cmsmailer->Send();
+    }
 }
 
 function getUserProperty($userProp, $title) {
