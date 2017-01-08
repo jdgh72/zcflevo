@@ -59,7 +59,6 @@ class synchroniseledenadmin {
 		}
 
 		if (!empty($verschillen)) {
-		    echo "verschillen gevonden <br />";
 			$mailContent = "Beste " . $lid_ebk['naam']. ", \n\n";
 
 			$mailContent .= "Je gegevens op de ledensite zijn aangepast n.a.v. wijzigingen in de administratie, "; 

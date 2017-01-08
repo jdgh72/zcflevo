@@ -1,7 +1,6 @@
 <?php
 if (!isset($gCms)) exit;
 
-echo "start <br />";
 $feusers =& $this->GetModuleInstance('FrontEndUsers');
 $cmsmailer =& $this->GetModuleInstance('CMSMailer');
 $db = &$gCms->GetDb();
@@ -16,7 +15,6 @@ foreach ($userlist as $FeuUser) {
 	$lid = $boekhoudConnection->getUserData($username);
 
 	if (!empty($lid['naam'])) {
-		echo "Calling syncAdres for: " . $lid['naam'] . "feudid: " . $FeuUser['id'] . "<br />";
 		$ledenadminsync->syncAdres($FeuUser['id'], $lid); 
 	} 
 }
