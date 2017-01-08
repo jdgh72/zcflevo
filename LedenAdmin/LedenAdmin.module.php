@@ -1,5 +1,6 @@
 <?php
 require_once(__DIR__.'/eboekhouden.php');
+require_once(__DIR__.'/synchroniseledenadmin.php');
 
 class LedenAdmin extends CMSModule
 {
