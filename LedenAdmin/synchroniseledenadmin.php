@@ -2,13 +2,13 @@
 
 class synchroniseledenadmin {
 	private $feusers;
-	private $cmsmail;
+	private $cmsmailer;
 	private $lid;
 	
 	public function __construct($feusers, $cmsmail) 
 	{
 		$this->feusers = $feusers;
-		$this->cmsmail = $cmsmail;
+		$this->cmsmailer = $cmsmail;
 	}
 	
 	public function syncAdres($feu_id, $lid_ebk) {
@@ -67,10 +67,10 @@ class synchroniseledenadmin {
 			foreach ($verschillen as $verschil) {
 				$mailContent .= $verschil . "\n";
 			}
-			$mailContent .= "\nJe kunt je gegevens controleren op de ledenpagina van zcflevo.nl.";
-			$mailContent .= "Mochten er dingen niet kloppen geef dit dan door aan de secretaris.";
+			$mailContent .= "\nJe kunt je gegevens controleren op de ledenpagina van zcflevo.nl. ";
+			$mailContent .= "Mochten er zaken niet kloppen geef dit dan door aan de secretaris.";
+			$mailContent .= "\n\nMet vriendelijke groet,\n\nwebmaster\n";
 			
-			echo $mailContent . "<br />";
 			$this->cmsmailer->reset();
         
 			if (filter_var($lid_ebk['email'], FILTER_VALIDATE_EMAIL)) {
@@ -91,7 +91,7 @@ class synchroniseledenadmin {
 			$this->cmsmailer->SetSubject('Wijzigingen in administratie');
 			$this->cmsmailer->SetBody($mailContent);
 			$this->cmsmailer->IsHTML(false);
-			$this->cmsmailer->Send();
+			$this->cmsmailer->Send(); 
 	    }
 	}
 
