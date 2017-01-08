@@ -8,7 +8,7 @@ $dict = NewDataDictionary($db);
 $table_options = array('mysql'=>'TYPE=MyISAM', 'mysqli'=>'TYPE=MyISAM');
 
 
-switch($oldverison) 
+switch($oldversion) 
 {
         "0.1":
            // mysql-specific, but ignored by other database
