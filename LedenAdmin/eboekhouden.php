@@ -46,6 +46,8 @@ class eboekhouden_connection {
 		$lid['email'] = $relatie->Email;
 		$lid['geboortedatum'] = $relatie->Def1;
 		$lid['lid_sinds'] = $relatie->Def2;
+		$lid['lid_tot'] = $relatie->Def3;
+		$lid['status'] = $relatie->Def4;
         $lid['IBAN'] = $relatie->IBAN;
 		 
 		return $lid;
@@ -57,3 +59,4 @@ class eboekhouden_connection {
 		$result = $this->client->CloseSession($closeSessionParam);
 	}
 }
+?>

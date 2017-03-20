@@ -93,6 +93,161 @@ class synchroniseledenadmin {
 			$this->cmsmailer->Send(); 
 	    }
 	}
+	
+	public function syncStatus($feu_id, $lid_ebk) {
+	    $statusVerslag = Array();
+        $ebk_status=strtoupper($lid_ebk['status']);
+	    if ($lid_ebk['lid_tot'] == "") {
+	    // Actief lid
+	       $ebk_status=strtoupper($lid_ebk['status']);
+	       if ($ebk_status == "VLIEG") {
+	          $statusVerslag = $this->checkVliegendLid($feu_id, $lid_ebk['naam']);
+	       } elseif ($ebk_status == "ADMIN") {
+	          $statusVerslag = $this->checkAdministratiefLid($feu_id, $lid_ebk['naam']);
+	       } elseif ($ebk_status == "DONATEUR") {
+	          // Donateur kan lid zijn geweest, maar dat hoeft niet.
+	          $statusVerslag = $this->checkDonateurschap($feu_id, $lid_ebk['naam']);
+            } elseif ($ebk_status == "ERELID") {
+                $statusVerslag = $this->checkErelid($feu_id, $lid_ebk['naam']);
+            } else {
+              $statusVerslag = $this->unknownStatus($feu_id, $ebk_status, $lid_ebk['naam']);
+	       }
+	    } else {
+	       if ($ebk_status == "") {
+	          $statusVerslag = $this->checkGeenLid($feu_id, $lid_ebk['naam']);
+	       } elseif ($ebk_status == "DONATEUR") {
+	          $statusVerslag = $this->checkDonateurschap($feu_id, $lid_ebk['naam']);
+	       } else {
+	          $statusVerslag = $this->invalidStatus($feu_id, $ebk_status, $lid_ebk['naam']);
+	       }
+	    }
+	    
+	    if (!empty($statusVerslag)) {
+			$mailContent = "Beste secretaris, \n\n";
+
+			$mailContent .= "Bij synchronisatie van de ledenadministratie tussen site en e-boekhouden "; 
+	        $mailContent .= "is het volgende geconstateerd: \n\n";
+			foreach ($statusVerslag as $verslagRegel) {
+				$mailContent .= $verslagRegel . "\n";
+			}
+			$mailContent .= "\n";
+			$mailContent .= "Met vriendelijke groet,\n\nwebmaster\n";
+			
+			$this->cmsmailer->reset();
+        
+			$this->cmsmailer->AddAddress('secretaris@zcflevo.nl', 'secretaris ZCFlevo');		
+			$this->cmsmailer->AddCC('webmaster@zcflevo.nl','webmaster');
+	        
+			$this->cmsmailer->AddReplyTo('webmaster@zcflevo.nl','webmaster');
+			$this->cmsmailer->SetSubject('Synchronisatie status lid');
+			$this->cmsmailer->SetBody($mailContent);
+			$this->cmsmailer->IsHTML(false);
+			$this->cmsmailer->Send(); 
+            print_r ($statusVerslag);
+	    }
+	    
+
+	}
+
+	
+	private function checkVliegendLid($feu_id, $naam) {
+	     return $this->checkStatus($feu_id, 13, $naam);
+	}
+	
+	private function checkAdministratiefLid($feu_id, $naam) {
+	     return $this->checkStatus($feu_id, 15, $naam);
+	}
+	
+	private function checkDonateurschap($feu_id, $naam) {
+	     return $this->checkStatus($feu_id, 16, $naam);
+	}
+	
+    private function checkErelid($feu_id, $naam) {
+        return $this->checkStatus($feu_id, 18, $naam);
+    }
+    
+	private function checkGeenLid($feu_id, $naam) {
+	     return $this->checkStatus($feu_id, 0, $naam);
+	}
+	
+	private function unknownStatus($feu_id, $ebk_status, $naam) {
+        $status = "Onjuiste status in E-boekhouden voor ".$naam."\n";
+        $status .= "Verwacht een lidstatus VLIEG, ADMIN of DONATEUR omdat veld lid_tot niet is ingevuld\n";
+        $status .= "Gevonden status in e-boekhouden is: ".$ebk_status;
+        return $status; 
+	}
+	
+	private function invalidStatus($feu_id, $ebk_status, $naam) {
+        $status = "Onjuiste status in E-boekhouden voor ".$naam."\n";
+        $status .= "Veld lid_tot is ingevuld wat erop duidt dat lidmaatschap geeindigd is\n";
+        $status .= "Verwacht status niet ingevuld of status DONATEUR, status is echter: ".$ebk_status;
+	    return $status;
+	}
+	
+	
+	private function checkStatus($feu_id, $group_id, $naam) {
+	    $wijzigingsVerslag = Array();
+	    // 1: Leden
+	    if (!$this->feusers->MemberOfGroup($feu_id, 1)) {
+	        $this->feusers->AssignUserToGroup($feu_id, 1);
+	        $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep Leden.";
+	    }
+	    
+	    // 13: vliegend
+	    if ($this->feusers->MemberOfGroup($feu_id, 13)) {
+	        if ($group_id != 13) {
+	           $this->feusers->RemoveUserFromGroup($feu_id, 13);
+	           $wijzigingsVerslag[] = "Lid ".$naam. " verwijderd van groep vliegend.";
+	        }
+	    } else {
+	        if ($group_id == 13) {
+   	            $this->feusers->AssignUserToGroup($feu_id, 13);
+	            $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep vliegend.";
+	        }
+	    }
+	    
+	    // 15: administratief
+	    if ($this->feusers->MemberOfGroup($feu_id, 15)) {
+	        if ($group_id != 15) {
+	           $this->feusers->RemoveUserFromGroup($feu_id, 15);
+	           $wijzigingsVerslag[] = "Lid ".$naam. " verwijderd van groep administratief.";
+	        }
+	    } else {
+	        if ($group_id == 15) {
+   	            $this->feusers->AssignUserToGroup($feu_id, 15);
+	            $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep administratief.";
+	        }
+	    }
+
+	    // 16: donateur
+	    if ($this->feusers->MemberOfGroup($feu_id, 16)) {
+	        if ($group_id != 16) {
+	           $this->feusers->RemoveUserFromGroup($feu_id, 16);
+	           $wijzigingsVerslag[] = "Lid ".$naam. " verwijderd van groep donateur.";
+	        }
+	    } else {
+	        if ($group_id == 16) {
+   	            $this->feusers->AssignUserToGroup($feu_id, 16);
+	            $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep donateur.";
+	        }
+	    }
+        
+        //18: Erelid
+        if ($this->feusers->MemberOfGroup($feu_id, 18)) {
+	        if ($group_id != 18) {
+	           $this->feusers->RemoveUserFromGroup($feu_id, 18);
+	           $wijzigingsVerslag[] = "Lid ".$naam. " verwijderd van groep ereleden.";
+	        }
+	    } else {
+	        if ($group_id == 18) {
+   	            $this->feusers->AssignUserToGroup($feu_id, 18);
+	            $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep ereleden.";
+	        }
+	    }
+	    
+	    return $wijzigingsVerslag;
+	}    
+	
 
 	private function getUserProperty($userProp, $title) {
 		foreach( $userProp as $oneprop )
@@ -105,3 +260,4 @@ class synchroniseledenadmin {
 		return "";
 	}
 }
+?>

@@ -15,8 +15,9 @@ foreach ($userlist as $FeuUser) {
 	$lid = $boekhoudConnection->getUserData($username);
 
 	if (!empty($lid['naam'])) {
-		$ledenadminsync->syncAdres($FeuUser['id'], $lid); 
-	} 
+		$ledenadminsync->syncAdres($FeuUser['id'], $lid);
+		$ledenadminsync->syncStatus($FeuUser['id'], $lid); 
+	}
 }
 
 closeConnection($boekhoudConnection);
