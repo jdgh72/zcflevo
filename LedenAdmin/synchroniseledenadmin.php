@@ -95,7 +95,7 @@ class synchroniseledenadmin {
 	}
 	
 	public function syncStatus($feu_id, $lid_ebk) {
-	    $statusVerslag = Array();
+	    $statusVerslag = array();
         $ebk_status=strtoupper($lid_ebk['status']);
 	    if ($lid_ebk['lid_tot'] == "") {
 	    // Actief lid
@@ -135,8 +135,8 @@ class synchroniseledenadmin {
 			
 			$this->cmsmailer->reset();
         
-			$this->cmsmailer->AddAddress('secretaris@zcflevo.nl', 'secretaris ZCFlevo');		
-			$this->cmsmailer->AddCC('webmaster@zcflevo.nl','webmaster');
+			$this->cmsmailer->AddAddress('webmaster@zcflevo.nl','webmaster');		
+			//$this->cmsmailer->AddCC('webmaster@zcflevo.nl','webmaster');
 	        
 			$this->cmsmailer->AddReplyTo('webmaster@zcflevo.nl','webmaster');
 			$this->cmsmailer->SetSubject('Synchronisatie status lid');
@@ -168,22 +168,24 @@ class synchroniseledenadmin {
 	}
 	
 	private function unknownStatus($feu_id, $ebk_status, $naam) {
-        $status = "Onjuiste status in E-boekhouden voor ".$naam."\n";
-        $status .= "Verwacht een lidstatus VLIEG, ADMIN of DONATEUR omdat veld lid_tot niet is ingevuld\n";
-        $status .= "Gevonden status in e-boekhouden is: ".$ebk_status;
+        $status = array();
+        $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
+        $status[] = "Verwacht een lidstatus VLIEG, ADMIN of DONATEUR omdat veld lid_tot niet is ingevuld";
+        $status[] = "Gevonden status in e-boekhouden is: ".$ebk_status;
         return $status; 
 	}
 	
 	private function invalidStatus($feu_id, $ebk_status, $naam) {
-        $status = "Onjuiste status in E-boekhouden voor ".$naam."\n";
-        $status .= "Veld lid_tot is ingevuld wat erop duidt dat lidmaatschap geeindigd is\n";
-        $status .= "Verwacht status niet ingevuld of status DONATEUR, status is echter: ".$ebk_status;
+        $status = array();
+        $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
+        $status[] = "Veld lid_tot is ingevuld wat erop duidt dat lidmaatschap geeindigd is";
+        $status[] = "Verwacht status niet ingevuld of status DONATEUR, status is echter: ".$ebk_status;
 	    return $status;
 	}
 	
 	
 	private function checkStatus($feu_id, $group_id, $naam) {
-	    $wijzigingsVerslag = Array();
+	    $wijzigingsVerslag = array();
 	    // 1: Leden
 	    if (!$this->feusers->MemberOfGroup($feu_id, 1)) {
 	        $this->feusers->AssignUserToGroup($feu_id, 1);
