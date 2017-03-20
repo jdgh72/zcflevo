@@ -143,10 +143,7 @@ class synchroniseledenadmin {
 			$this->cmsmailer->SetBody($mailContent);
 			$this->cmsmailer->IsHTML(false);
 			$this->cmsmailer->Send(); 
-            print_r ($statusVerslag);
-	    }
-	    
-
+        }
 	}
 
 	
