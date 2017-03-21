@@ -104,6 +104,8 @@ class synchroniseledenadmin {
 	          $statusVerslag = $this->checkVliegendLid($feu_id, $lid_ebk['naam']);
 	       } elseif ($ebk_status == "ADMIN") {
 	          $statusVerslag = $this->checkAdministratiefLid($feu_id, $lid_ebk['naam']);
+           } elseif ($ebk_status == "ASPI") {
+               $statusVerslag = $this->checkAspirantLid($feu_id, $lid_ebk['naam']);
 	       } elseif ($ebk_status == "DONATEUR") {
 	          // Donateur kan lid zijn geweest, maar dat hoeft niet.
 	          $statusVerslag = $this->checkDonateurschap($feu_id, $lid_ebk['naam']);
@@ -155,6 +157,10 @@ class synchroniseledenadmin {
 	     return $this->checkStatus($feu_id, 15, $naam);
 	}
 	
+    private function checkAspirantLid($feu_id, $naam){
+        return $this->checkStatus($feu_id, 17, $naam);
+    }
+    
 	private function checkDonateurschap($feu_id, $naam) {
 	     return $this->checkStatus($feu_id, 16, $naam);
 	}
@@ -170,7 +176,7 @@ class synchroniseledenadmin {
 	private function unknownStatus($feu_id, $ebk_status, $naam) {
         $status = array();
         $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
-        $status[] = "Verwacht een lidstatus VLIEG, ADMIN of DONATEUR omdat veld lid_tot niet is ingevuld";
+        $status[] = "Verwacht een lidstatus VLIEG, ASPI, ADMIN of DONATEUR omdat veld lid_tot niet is ingevuld";
         $status[] = "Gevonden status in e-boekhouden is: ".$ebk_status;
         return $status; 
 	}
@@ -179,7 +185,7 @@ class synchroniseledenadmin {
         $status = array();
         $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
         $status[] = "Veld lid_tot is ingevuld wat erop duidt dat lidmaatschap geeindigd is";
-        $status[] = "Verwacht status niet ingevuld of status DONATEUR, status is echter: ".$ebk_status;
+        $status[] = "Verwacht status niet ingevuld of status DONATEUR of ERELID, status is echter: ".$ebk_status;
 	    return $status;
 	}
 	
@@ -228,6 +234,19 @@ class synchroniseledenadmin {
 	        if ($group_id == 16) {
    	            $this->feusers->AssignUserToGroup($feu_id, 16);
 	            $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep donateur.";
+	        }
+	    }
+        
+        // 17: aspirant
+	    if ($this->feusers->MemberOfGroup($feu_id, 17)) {
+	        if ($group_id != 17) {
+	           $this->feusers->RemoveUserFromGroup($feu_id, 17);
+	           $wijzigingsVerslag[] = "Lid ".$naam. " verwijderd van groep aspirant.";
+	        }
+	    } else {
+	        if ($group_id == 17) {
+   	            $this->feusers->AssignUserToGroup($feu_id, 17);
+	            $wijzigingsVerslag[] = "Lid ".$naam. " toegevoegd aan groep aspirant.";
 	        }
 	    }
         
