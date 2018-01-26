@@ -96,8 +96,8 @@ class synchroniseledenadmin {
 	
 	public function syncStatus($feu_id, $lid_ebk) {
 	    $statusVerslag = array();
-        $ebk_status=strtoupper($lid_ebk['status']);
-	    if ($lid_ebk['lid_tot'] == "") {
+        $ebk_status=strtoupper(trim($lid_ebk['status']));
+	    if (trim($lid_ebk['lid_tot']) == "") {
 	    // Actief lid
 	       $ebk_status=strtoupper($lid_ebk['status']);
 	       if ($ebk_status == "VLIEG") {
