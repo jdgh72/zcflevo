@@ -106,7 +106,7 @@ class synchroniseledenadmin {
 	          $statusVerslag = $this->checkAdministratiefLid($feu_id, $lid_ebk['naam']);
            } elseif ($ebk_status == "ASPI") {
                $statusVerslag = $this->checkAspirantLid($feu_id, $lid_ebk['naam']);
-	       } elseif ($ebk_status == "DONATEUR") {
+	       } elseif ($ebk_status == "DONATEUR" Or $ebk_status == "DON") {
 	          // Donateur kan lid zijn geweest, maar dat hoeft niet.
 	          $statusVerslag = $this->checkDonateurschap($feu_id, $lid_ebk['naam']);
             } elseif ($ebk_status == "ERELID") {
@@ -117,7 +117,7 @@ class synchroniseledenadmin {
 	    } else {
 	       if ($ebk_status == "") {
 	          $statusVerslag = $this->checkGeenLid($feu_id, $lid_ebk['naam']);
-	       } elseif ($ebk_status == "DONATEUR") {
+	       } elseif ($ebk_status == "DONATEUR" Or $ebk_status == "DON") {
 	          $statusVerslag = $this->checkDonateurschap($feu_id, $lid_ebk['naam']);
 	       } else {
 	          $statusVerslag = $this->invalidStatus($feu_id, $ebk_status, $lid_ebk['naam']);
@@ -176,7 +176,7 @@ class synchroniseledenadmin {
 	private function unknownStatus($feu_id, $ebk_status, $naam) {
         $status = array();
         $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
-        $status[] = "Verwacht een lidstatus VLIEG, ASPI, ADMIN of DONATEUR omdat veld lid_tot niet is ingevuld";
+        $status[] = "Verwacht een lidstatus VLIEG, ASPI, ADMIN of DON(ATEUR) omdat veld lid_tot niet is ingevuld";
         $status[] = "Gevonden status in e-boekhouden is: ".$ebk_status;
         return $status; 
 	}
@@ -185,7 +185,7 @@ class synchroniseledenadmin {
         $status = array();
         $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
         $status[] = "Veld lid_tot is ingevuld wat erop duidt dat lidmaatschap geeindigd is";
-        $status[] = "Verwacht status niet ingevuld of status DONATEUR of ERELID, status is echter: ".$ebk_status;
+        $status[] = "Verwacht status niet ingevuld of status DON(ATEUR) of ERELID, status is echter: ".$ebk_status;
 	    return $status;
 	}
 	
