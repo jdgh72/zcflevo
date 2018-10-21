@@ -115,7 +115,7 @@ class synchroniseledenadmin {
               $statusVerslag = $this->unknownStatus($feu_id, $ebk_status, $lid_ebk['naam']);
 	       }
 	    } else {
-	       if ($ebk_status == "") {
+	       if ($ebk_status == "" Or $ebk_status == "EX") {
 	          $statusVerslag = $this->checkGeenLid($feu_id, $lid_ebk['naam']);
 	       } elseif ($ebk_status == "DONATEUR" Or $ebk_status == "DON") {
 	          $statusVerslag = $this->checkDonateurschap($feu_id, $lid_ebk['naam']);
@@ -185,7 +185,7 @@ class synchroniseledenadmin {
         $status = array();
         $status[] = "Onjuiste status in E-boekhouden voor ".$naam;
         $status[] = "Veld lid_tot is ingevuld wat erop duidt dat lidmaatschap geeindigd is";
-        $status[] = "Verwacht status niet ingevuld of status DON(ATEUR) of ERELID, status is echter: ".$ebk_status;
+        $status[] = "Verwacht status niet ingevuld, EX of status DON(ATEUR) of ERELID, status is echter: ".$ebk_status;
 	    return $status;
 	}
 	
